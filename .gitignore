@@ -46,3 +46,6 @@ build/
 
 # Docker
 .dockerignore
+rankbeacon-deploy.tar.gz
+rankbeacon-key.pem
+*.pem
