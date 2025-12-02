@@ -42,21 +42,21 @@ services:
       - backend-cache:/app/.cache
 
   # MCP Server - Disabled for lightweight deployment
-  # mcp-server:
-  #   build:
-  #     context: ./mcp-server
-  #     dockerfile: Dockerfile
-  #   ports:
-  #     - "3001:3001"
-  #   environment:
-  #     - NODE_ENV=production
-  #     - BACKEND_API_URL=http://backend:8000
-  #     - LOG_LEVEL=info
-  #   depends_on:
-  #     - backend
-  #   networks:
-  #     - rankbeacon-network
-  #   restart: unless-stopped
+  mcp-server:
+    build:
+      context: ./mcp-server
+      dockerfile: Dockerfile
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=production
+      - BACKEND_API_URL=http://backend:8000
+      - LOG_LEVEL=info
+    depends_on:
+      - backend
+    networks:
+      - rankbeacon-network
+    restart: unless-stopped
 
   # PostgreSQL Database
   postgres:
