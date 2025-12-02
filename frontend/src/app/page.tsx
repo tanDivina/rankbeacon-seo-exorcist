@@ -1164,6 +1164,19 @@ Banishing SEO demons since 2025 🔮
         {/* Results */}
         {result && (
           <div className="max-w-6xl mx-auto animate-fade-in">
+            {/* Warning Banner for JS Rendering */}
+            {result.warning && (
+              <div className="bg-yellow-900/30 backdrop-blur-md rounded-xl p-6 border border-yellow-500/50 shadow-xl mb-6 animate-fade-in-up">
+                <div className="flex items-start gap-4">
+                  <span className="text-3xl">⚠️</span>
+                  <div className="flex-1">
+                    <h4 className="text-yellow-300 font-bold text-lg mb-2">JavaScript Rendering Notice</h4>
+                    <p className="text-yellow-100/90 leading-relaxed">{result.warning}</p>
+                  </div>
+                </div>
+              </div>
+            )}
+            
             {/* Haunting Score */}
             <div className="bg-gradient-to-r from-purple-900/50 to-pink-900/50 backdrop-blur-md rounded-2xl p-8 border border-purple-500/30 shadow-2xl mb-8 animate-fade-in-up relative overflow-hidden">
               {/* Animated background effect */}

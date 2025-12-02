@@ -13,8 +13,13 @@ import httpx
 from datetime import datetime
 import logging
 
-# Import JS crawler
-from js_crawler import fetch_with_js
+# Import JS crawler (optional)
+try:
+    from js_crawler import fetch_with_js
+    PLAYWRIGHT_AVAILABLE = True
+except ImportError:
+    PLAYWRIGHT_AVAILABLE = False
+    logger.warning("⚠️ Playwright not available - JS rendering disabled")
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -73,6 +78,7 @@ class SEOAnalysisResponse(BaseModel):
     recommendations: List[str]
     analysis_timestamp: datetime
     exorcism_available: bool
+    warning: Optional[str] = None  # Warning message for JS rendering issues
 
 # In-memory storage for demo (replace with Redis/PostgreSQL in production)
 analysis_cache: Dict[str, SEOAnalysisResponse] = {}
@@ -157,7 +163,9 @@ async def analyze_website(request: WebsiteAnalysisRequest, background_tasks: Bac
         
         # Use JavaScript rendering if needed and enabled
         html_content = response.text
-        if is_js_heavy and request.use_js_rendering:
+        js_rendering_warning = None
+        
+        if is_js_heavy and request.use_js_rendering and PLAYWRIGHT_AVAILABLE:
             logger.info(f"🎭 Using JavaScript rendering for {url_str}")
             try:
                 js_result = await fetch_with_js(url_str, timeout=30000)
@@ -167,8 +175,13 @@ async def analyze_website(request: WebsiteAnalysisRequest, background_tasks: Bac
             except Exception as e:
                 logger.error(f"❌ JavaScript rendering failed: {e}")
                 logger.warning(f"⚠️ Falling back to static HTML analysis")
+                js_rendering_warning = "JavaScript rendering failed - analyzing static HTML only"
+        elif is_js_heavy and request.use_js_rendering and not PLAYWRIGHT_AVAILABLE:
+            logger.warning(f"⚠️ JS rendering requested but not available - analyzing static HTML")
+            js_rendering_warning = "⚠️ This site relies heavily on JavaScript rendering. Sites that require JS to display content are already failing SEO best practices, as search engines prefer server-side rendered content for better indexing and performance."
         elif is_js_heavy:
             logger.warning(f"⚠️ Detected JavaScript-heavy site - analysis may be limited")
+            js_rendering_warning = "This site appears to be JavaScript-heavy. Enable JS rendering for more accurate analysis."
         
         # Analyze the HTML content
         entities = await detect_seo_entities(url_str, html_content, is_js_heavy)
@@ -180,7 +193,8 @@ async def analyze_website(request: WebsiteAnalysisRequest, background_tasks: Bac
             entities=entities,
             recommendations=generate_exorcism_recommendations(entities),
             analysis_timestamp=datetime.now(),
-            exorcism_available=len(entities) > 0
+            exorcism_available=len(entities) > 0,
+            warning=js_rendering_warning
         )
         
         # Cache the result
