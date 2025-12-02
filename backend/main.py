@@ -13,6 +13,10 @@ import httpx
 from datetime import datetime
 import logging
 
+# Configure logging first
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
 # Import JS crawler (optional)
 try:
     from js_crawler import fetch_with_js
@@ -20,10 +24,6 @@ try:
 except ImportError:
     PLAYWRIGHT_AVAILABLE = False
     logger.warning("⚠️ Playwright not available - JS rendering disabled")
-
-# Configure logging
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
 
 app = FastAPI(
     title="RankBeacon SEO Exorcist API",
