@@ -22,23 +22,23 @@ import { wsManager, messageRouter, responseFormatter } from './communication/ind
 
 // Import our spooky SEO tools
 import { crawlWebsiteTool } from './tools/crawler.js';
-import { auditSEOTool } from './tools/auditor.js';
-import { analyzeCompetitorsTool } from './tools/competitors.js';
-import { optimizeContentTool } from './tools/optimizer.js';
-import { validateSchemaTool } from './tools/schema.js';
-import { checkPerformanceTool } from './tools/performance.js';
-import { predictorTool, trendAnalysisTool } from './tools/predictor.js';
-import { algorithmDetectionTool, updateImpactTool, recoveryStrategyTool } from './tools/algorithm.js';
-import { pingTool, echoTool, statusTool } from './tools/ping.js';
-import { optimizeForAIOverviewTool } from './tools/aiOverview.js';
-import { performCompetitiveAnalysisTool } from './tools/competitiveAnalysis.js';
+// import { auditSEOTool } from './tools/auditor.js';
+// import { analyzeCompetitorsTool } from './tools/competitors.js';
+// import { optimizeContentTool } from './tools/optimizer.js';
+// import { validateSchemaTool } from './tools/schema.js';
+// import { checkPerformanceTool } from './tools/performance.js';
+// import { predictorTool, trendAnalysisTool } from './tools/predictor.js';
+// import { algorithmDetectionTool, updateImpactTool, recoveryStrategyTool } from './tools/algorithm.js';
+// import { pingTool, echoTool, statusTool } from './tools/ping.js';
+// import { optimizeForAIOverviewTool } from './tools/aiOverview.js';
+// import { performCompetitiveAnalysisTool } from './tools/competitiveAnalysis.js';
 
 // Load environment variables
 dotenv.config();
 
 // Configure spooky logging
 const logger = winston.createLogger({
-  level: process.env.LOG_LEVEL || 'info',
+  level: process.env['LOG_LEVEL'] || 'info',
   format: winston.format.combine(
     winston.format.timestamp(),
     winston.format.errors({ stack: true }),
@@ -394,32 +394,22 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       case 'crawl_website':
         return await crawlWebsiteTool(args);
       
+      // Temporarily disabled tools for lightweight deployment
       case 'audit_seo':
-        return await auditSEOTool(args);
-      
       case 'analyze_competitors':
-        return await analyzeCompetitorsTool(args as any);
-      
       case 'optimize_content':
-        return await optimizeContentTool(args);
-      
       case 'validate_schema':
-        return await validateSchemaTool(args);
-      
       case 'check_performance':
-        return await checkPerformanceTool(args);
-      
       case 'predict_rankings':
-        return await predictorTool.handler(args as any);
-      
       case 'detect_algorithm_impact':
-        return await algorithmDetectionTool.handler(args as any);
-      
       case 'optimize_for_ai_overview':
-        return await optimizeForAIOverviewTool(args);
-      
       case 'perform_competitive_analysis':
-        return await performCompetitiveAnalysisTool(args);
+        return {
+          content: [{
+            type: 'text',
+            text: `Tool ${name} is temporarily unavailable in lightweight deployment mode. Use the main backend API instead.`
+          }]
+        };
       
       default:
         logger.error(`💀 Unknown tool summoned: ${name}`);
@@ -442,7 +432,7 @@ async function startSpookyServer() {
   logger.info('🌐 Initializing Kiro communication layer...');
   
   // Register message handlers
-  messageRouter.registerHandler('ping', async (message) => {
+  messageRouter.registerHandler('ping', async (message: any) => {
     logger.info('🏓 Ping received, sending pong');
     await messageRouter.handlePing(message);
   });

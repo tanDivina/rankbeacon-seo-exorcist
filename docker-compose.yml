@@ -14,7 +14,7 @@ services:
       - NEXT_PUBLIC_MCP_SERVER_URL=ws://mcp-server:3001
     depends_on:
       - backend
-      - mcp-server
+      # - mcp-server  # Disabled for lightweight deployment
     networks:
       - rankbeacon-network
     restart: unless-stopped
