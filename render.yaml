@@ -1,0 +1,45 @@
+services:
+  # Backend API
+  - type: web
+    name: rankbeacon-backend
+    env: docker
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    envVars:
+      - key: PORT
+        value: 8000
+      - key: DATABASE_URL
+        fromDatabase:
+          name: rankbeacon-db
+          property: connectionString
+      - key: REDIS_URL
+        fromService:
+          name: rankbeacon-redis
+          type: redis
+          property: connectionString
+    healthCheckPath: /api/health
+
+  # Frontend
+  - type: web
+    name: rankbeacon-frontend
+    env: docker
+    dockerfilePath: ./frontend/Dockerfile
+    dockerContext: ./frontend
+    envVars:
+      - key: PORT
+        value: 3000
+      - key: NEXT_PUBLIC_API_URL
+        value: https://rankbeacon-backend.onrender.com
+
+  # PostgreSQL Database
+  - type: pserv
+    name: rankbeacon-db
+    env: docker
+    dockerfilePath: ./Dockerfile.postgres
+    plan: free
+
+  # Redis Cache
+  - type: redis
+    name: rankbeacon-redis
+    plan: free
+    maxmemoryPolicy: allkeys-lru

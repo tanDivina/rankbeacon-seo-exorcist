@@ -1,0 +1,25 @@
+services:
+  # Backend API - Simplified
+  - type: web
+    name: rankbeacon-backend
+    env: docker
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    plan: free
+    envVars:
+      - key: PORT
+        value: 8000
+    healthCheckPath: /api/health
+
+  # Frontend
+  - type: web
+    name: rankbeacon-frontend  
+    env: docker
+    dockerfilePath: ./frontend/Dockerfile
+    dockerContext: ./frontend
+    plan: free
+    envVars:
+      - key: PORT
+        value: 3000
+      - key: NEXT_PUBLIC_API_URL
+        value: https://rankbeacon-backend.onrender.com

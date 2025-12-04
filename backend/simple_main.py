@@ -52,7 +52,7 @@ async def analyze_page(session, url: str):
             html = await response.text()
             status_code = response.status
             
-        soup = BeautifulSoup(html, 'lxml')
+        soup = BeautifulSoup(html, 'html.parser')
         return soup, status_code, None
     except Exception as e:
         return None, None, str(e)

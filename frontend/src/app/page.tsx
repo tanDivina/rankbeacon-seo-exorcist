@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import SpookyParticles from '../components/SpookyParticles';
+import BatExplosion from '../components/BatExplosion';
 
 export default function Home() {
   const [url, setUrl] = useState('');
@@ -884,6 +885,9 @@ Banishing SEO demons since 2025 🔮
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-purple-900 via-gray-900 to-black text-white relative overflow-hidden">
+      {/* Bat Explosion Effect */}
+      <BatExplosion />
+      
       {/* Spooky Particles */}
       <SpookyParticles />
       
@@ -919,21 +923,23 @@ Banishing SEO demons since 2025 🔮
       ))}
 
       {/* Spider Webs in Corners */}
-      <div className="fixed top-0 left-0 w-32 h-32 pointer-events-none z-30 opacity-30">
+      <div className="fixed top-0 left-0 w-64 h-64 pointer-events-none z-30 opacity-40">
         <svg viewBox="0 0 100 100" className="w-full h-full">
-          <path d="M0,0 L50,50 M0,20 L50,50 M0,40 L50,50 M20,0 L50,50 M40,0 L50,50" 
-                stroke="white" strokeWidth="0.5" fill="none" opacity="0.5"/>
-          <circle cx="50" cy="50" r="2" fill="white"/>
+          <path d="M0,0 L50,50 M0,15 L50,50 M0,30 L50,50 M0,45 L50,50 M15,0 L50,50 M30,0 L50,50 M45,0 L50,50" 
+                stroke="white" strokeWidth="0.8" fill="none" opacity="0.6"/>
+          <circle cx="50" cy="50" r="3" fill="white"/>
+          <path d="M50,50 Q30,30 10,10" stroke="white" strokeWidth="0.5" fill="none" opacity="0.4"/>
         </svg>
-        <div className="absolute top-8 left-8 text-xl animate-spider-crawl">🕷️</div>
+        <div className="absolute top-16 left-16 text-3xl animate-spider-crawl">🕷️</div>
       </div>
-      <div className="fixed top-0 right-0 w-32 h-32 pointer-events-none z-30 opacity-30 transform scale-x-[-1]">
+      <div className="fixed top-0 right-0 w-64 h-64 pointer-events-none z-30 opacity-40 transform scale-x-[-1]">
         <svg viewBox="0 0 100 100" className="w-full h-full">
-          <path d="M0,0 L50,50 M0,20 L50,50 M0,40 L50,50 M20,0 L50,50 M40,0 L50,50" 
-                stroke="white" strokeWidth="0.5" fill="none" opacity="0.5"/>
-          <circle cx="50" cy="50" r="2" fill="white"/>
+          <path d="M0,0 L50,50 M0,15 L50,50 M0,30 L50,50 M0,45 L50,50 M15,0 L50,50 M30,0 L50,50 M45,0 L50,50" 
+                stroke="white" strokeWidth="0.8" fill="none" opacity="0.6"/>
+          <circle cx="50" cy="50" r="3" fill="white"/>
+          <path d="M50,50 Q30,30 10,10" stroke="white" strokeWidth="0.5" fill="none" opacity="0.4"/>
         </svg>
-        <div className="absolute top-8 right-8 text-xl animate-spider-crawl">🕷️</div>
+        <div className="absolute top-16 right-16 text-3xl animate-spider-crawl">🕷️</div>
       </div>
       
       {/* Animated Background */}
