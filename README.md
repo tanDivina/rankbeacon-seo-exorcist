@@ -4,6 +4,9 @@
 
 An immersive, AI-powered SEO monitoring platform that transforms traditional SEO analysis into a spooky, engaging experience. Built for the Kiroween Hackathon with advanced Kiro MCP integration.
 
+**Created by:** Dorien Van Den Abbeele  
+**LinkedIn:** [linkedin.com/in/dorien-van-den-abbeele-136170b](https://www.linkedin.com/in/dorien-van-den-abbeele-136170b/)
+
 ## 🎃 Features
 
 ### 🔮 AI-Powered SEO Analysis
@@ -116,6 +119,18 @@ rankbeacon-seo-exorcist/
      }
    }
    ```
+
+## 🔌 REST API
+
+RankBeacon provides a REST API for programmatic SEO analysis:
+
+```bash
+curl -X POST https://autumn-dodge-probability-borders.trycloudflare.com/api/analyze \
+  -H "Content-Type: application/json" \
+  -d '{"url":"example.com","depth":3,"include_competitors":true}'
+```
+
+**Full API Documentation:** See [GITHUB_README.md](GITHUB_README.md#-rest-api) for detailed examples, response formats, and entity types.
 
 ## 🎯 Usage
 

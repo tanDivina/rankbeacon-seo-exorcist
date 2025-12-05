@@ -2,6 +2,9 @@
 
 **Tagline:** Exorcise your SEO demons with AI-powered haunting scores and real-time threat detection 🎃
 
+**Created by:** Dorien Van Den Abbeele  
+**LinkedIn:** [linkedin.com/in/dorien-van-den-abbeele-136170b](https://www.linkedin.com/in/dorien-van-den-abbeele-136170b/)
+
 ---
 
 ## Inspiration

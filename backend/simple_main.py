@@ -8,6 +8,10 @@ import aiohttp
 from bs4 import BeautifulSoup
 from typing import List, Optional
 import random
+import os
+import re
+import json
+from urllib.parse import quote_plus
 
 app = FastAPI(title="RankBeacon SEO Exorcist API")
 
@@ -87,6 +91,78 @@ async def find_internal_links(soup, base_url: str, max_links: int = 10):
             break
     
     return list(internal_urls)
+
+async def analyze_competitors_with_google(session, url: str, title: str):
+    """
+    Use Google Custom Search API to find competitors
+    Falls back gracefully if API key not configured
+    """
+    api_key = os.getenv('GOOGLE_API_KEY')
+    search_engine_id = os.getenv('GOOGLE_CSE_ID')
+    
+    print(f"🔍 Google API Debug: API Key present: {bool(api_key)}, CSE ID present: {bool(search_engine_id)}")
+    
+    if not api_key or not search_engine_id:
+        print("⚠️ Google API credentials not found, skipping competitor search")
+        return []  # Gracefully return empty if not configured
+    
+    try:
+        # Extract potential keywords from title
+        keywords = re.sub(r'[^\w\s]', '', title).strip()
+        print(f"🔍 Searching Google for keywords: '{keywords}'")
+        
+        if not keywords or len(keywords) < 3:
+            print("⚠️ Keywords too short, skipping search")
+            return []
+        
+        # Search Google for these keywords
+        search_url = f"https://www.googleapis.com/customsearch/v1"
+        params = {
+            'key': api_key,
+            'cx': search_engine_id,
+            'q': keywords[:100],  # Limit query length
+            'num': 5  # Get top 5 results
+        }
+        
+        print(f"🌐 Making Google API request...")
+        
+        async with session.get(search_url, params=params, timeout=aiohttp.ClientTimeout(total=5)) as response:
+            print(f"📡 Google API response status: {response.status}")
+            
+            if response.status != 200:
+                error_text = await response.text()
+                print(f"❌ Google API error: {error_text[:200]}")
+                return []
+            
+            data = await response.json()
+            print(f"✅ Google API returned {len(data.get('items', []))} results")
+            
+            competitors = []
+            
+            from urllib.parse import urlparse
+            current_domain = urlparse(url).netloc
+            
+            for item in data.get('items', [])[:5]:
+                competitor_url = item.get('link', '')
+                competitor_domain = urlparse(competitor_url).netloc
+                
+                # Skip if it's the same domain
+                if competitor_domain == current_domain:
+                    continue
+                
+                competitors.append({
+                    'url': competitor_url,
+                    'title': item.get('title', 'Unknown'),
+                    'snippet': item.get('snippet', '')
+                })
+            
+            print(f"🎯 Found {len(competitors)} unique competitors")
+            return competitors
+    
+    except Exception as e:
+        # Fail gracefully - don't break the analysis
+        print(f"❌ Google API exception: {str(e)}")
+        return []
 
 @app.post("/api/analyze")
 async def analyze(request: AnalyzeRequest):
@@ -169,34 +245,73 @@ async def analyze(request: AnalyzeRequest):
                 # Check for meta description
                 meta_desc = soup.find('meta', attrs={'name': 'description'})
                 if not meta_desc:
-                    # Generate smart suggestion from page content
-                    first_p = soup.find('p')
+                    # Generate smart, contextual suggestion from page content
+                    suggested_desc = None
                     
-                    # Try to create a compelling description
-                    if first_p and len(first_p.get_text().strip()) > 20:
-                        # Use first paragraph, cleaned up
-                        desc_text = first_p.get_text().strip()
-                        # Remove extra whitespace
-                        desc_text = ' '.join(desc_text.split())
-                        # Truncate to 157 chars and add ellipsis
-                        if len(desc_text) > 157:
-                            suggested_desc = desc_text[:157] + "..."
+                    # Strategy 1: Use first meaningful paragraph
+                    paragraphs = soup.find_all('p')
+                    for p in paragraphs[:5]:  # Check first 5 paragraphs
+                        p_text = p.get_text().strip()
+                        # Skip very short paragraphs or navigation text
+                        if len(p_text) > 50 and not any(skip in p_text.lower() for skip in ['cookie', 'javascript', 'browser', 'click here']):
+                            desc_text = ' '.join(p_text.split())  # Clean whitespace
+                            if len(desc_text) > 157:
+                                suggested_desc = desc_text[:157] + "..."
+                            else:
+                                suggested_desc = desc_text
+                            break
+                    
+                    # Strategy 2: Combine H1 + first paragraph
+                    if not suggested_desc and h1_tags:
+                        h1_text = h1_tags[0].get_text().strip()
+                        first_p = soup.find('p')
+                        if first_p:
+                            p_text = first_p.get_text().strip()
+                            combined = f"{h1_text}. {p_text}"
+                            combined = ' '.join(combined.split())
+                            if len(combined) > 157:
+                                suggested_desc = combined[:157] + "..."
+                            else:
+                                suggested_desc = combined
+                    
+                    # Strategy 3: Extract from article/main content
+                    if not suggested_desc:
+                        main_content = soup.find(['article', 'main', 'div'], class_=lambda x: x and any(c in str(x).lower() for c in ['content', 'article', 'post', 'main']))
+                        if main_content:
+                            content_text = main_content.get_text().strip()
+                            content_text = ' '.join(content_text.split())
+                            if len(content_text) > 50:
+                                suggested_desc = content_text[:157] + "..." if len(content_text) > 157 else content_text
+                    
+                    # Strategy 4: Use title with context
+                    if not suggested_desc:
+                        if title_text:
+                            # Make it more specific based on page structure
+                            has_form = soup.find('form') is not None
+                            has_images = len(soup.find_all('img')) > 3
+                            has_list = soup.find(['ul', 'ol']) is not None
+                            
+                            if has_form:
+                                suggested_desc = f"{title_text} - Get started today. Fill out our form to learn more and take the next step."
+                            elif has_images:
+                                suggested_desc = f"{title_text} - Explore our visual guide with detailed information and examples."
+                            elif has_list:
+                                suggested_desc = f"{title_text} - Comprehensive guide with step-by-step instructions and key points."
+                            else:
+                                suggested_desc = f"{title_text} - Detailed information and insights to help you understand this topic better."
                         else:
-                            # Pad if too short
-                            suggested_desc = desc_text + " Learn more about our services and offerings."
-                            suggested_desc = suggested_desc[:160]
-                    else:
-                        # Fallback: use title + generic text
-                        page_title = title_text if title_text else "this page"
-                        suggested_desc = f"Learn more about {page_title}. Discover comprehensive information, resources, and insights to help you make informed decisions."[:160]
+                            suggested_desc = "Discover valuable information and resources on this page. Learn more about our offerings and how we can help you."
+                    
+                    # Ensure optimal length
+                    suggested_desc = suggested_desc[:160] if len(suggested_desc) > 160 else suggested_desc
                     
                     all_entities.append({
                         "type": "ghost",
                         "severity": "high",
                         "title": "Missing Meta Description",
-                        "description": "No meta description found - this is crucial for search results",
+                        "description": "No meta description found - this is crucial for search results and click-through rates",
                         "url": page_url,
-                        "fix_suggestion": "Add a compelling meta description (150-160 characters) that summarizes your page and includes target keywords",
+                        "fix_suggestion": f"Add a compelling meta description (150-160 characters) that:\n• Summarizes your page content\n• Includes target keywords naturally\n• Encourages clicks with a clear value proposition\n• Matches user search intent\n\nSuggested based on your content: \"{suggested_desc}\"",
                         "suggested_code": f'<meta name="description" content="{suggested_desc}">'
                     })
                     page_issues += 10
@@ -204,26 +319,46 @@ async def analyze(request: AnalyzeRequest):
                     # Check if existing description is too short or too long
                     desc_content = meta_desc.get('content', '')
                     if len(desc_content) < 50:
+                        # Try to expand with page content
+                        first_p = soup.find('p')
+                        expansion_text = ""
+                        if first_p:
+                            p_text = first_p.get_text().strip()
+                            p_text = ' '.join(p_text.split())
+                            # Add relevant content from first paragraph
+                            remaining_chars = 157 - len(desc_content)
+                            if remaining_chars > 20:
+                                expansion_text = " " + p_text[:remaining_chars]
+                        
+                        improved_desc = (desc_content + expansion_text).strip()[:160]
+                        
                         all_entities.append({
                             "type": "specter",
                             "severity": "medium",
                             "title": "Meta Description Too Short",
-                            "description": f"Meta description is only {len(desc_content)} characters (recommended: 150-160)",
+                            "description": f"Meta description is only {len(desc_content)} characters (recommended: 150-160). Short descriptions miss opportunities to attract clicks.",
                             "url": page_url,
-                            "fix_suggestion": "Expand your meta description to 150-160 characters for better search results",
+                            "fix_suggestion": f"Expand your meta description to 150-160 characters by:\n• Adding specific benefits or features\n• Including relevant keywords\n• Highlighting what makes your page unique\n• Adding a call-to-action\n\nCurrent: \"{desc_content}\"\nSuggested: \"{improved_desc}\"",
                             "current_content": desc_content,
-                            "suggested_code": f'<meta name="description" content="{desc_content} Add more compelling details about your page content to reach the optimal length of 150-160 characters."[:160]>'
+                            "suggested_code": f'<meta name="description" content="{improved_desc}">'
                         })
                         page_issues += 5
                     elif len(desc_content) > 160:
-                        shortened_desc = desc_content[:157] + "..."
+                        # Smart truncation - try to end at a sentence or word boundary
+                        shortened_desc = desc_content[:157]
+                        # Try to end at last complete word
+                        last_space = shortened_desc.rfind(' ')
+                        if last_space > 140:  # Only if we're not cutting too much
+                            shortened_desc = shortened_desc[:last_space]
+                        shortened_desc = shortened_desc.rstrip('.,;:') + "..."
+                        
                         all_entities.append({
                             "type": "specter",
                             "severity": "low",
                             "title": "Meta Description Too Long",
-                            "description": f"Meta description is {len(desc_content)} characters (recommended: 150-160)",
+                            "description": f"Meta description is {len(desc_content)} characters (recommended: 150-160). Google will truncate it in search results.",
                             "url": page_url,
-                            "fix_suggestion": "Shorten your meta description to 150-160 characters to avoid truncation in search results",
+                            "fix_suggestion": f"Shorten your meta description to 150-160 characters by:\n• Removing redundant words\n• Focusing on the most important message\n• Keeping the key value proposition\n• Ending with a clear call-to-action\n\nCurrent ({len(desc_content)} chars): \"{desc_content}\"\nSuggested ({len(shortened_desc)} chars): \"{shortened_desc}\"",
                             "current_content": desc_content,
                             "suggested_code": f'<meta name="description" content="{shortened_desc}">'
                         })
@@ -346,6 +481,69 @@ async def analyze(request: AnalyzeRequest):
         
         # Calculate haunting score (0-100, higher is worse)
         haunting_score = min(100, total_issues)
+        
+        # Smart Competitor Analysis - Generate monster entities based on SEO health
+        critical_issues = len([e for e in all_entities if e.get('severity') == 'critical'])
+        high_issues = len([e for e in all_entities if e.get('severity') == 'high'])
+        
+        # Try to get real competitors from Google API
+        competitors = []
+        if request.include_competitors and soup:
+            title_tag = soup.find('title')
+            if title_tag:
+                # Create a new session for Google API (the main session might be closed)
+                async with aiohttp.ClientSession() as google_session:
+                    competitors = await analyze_competitors_with_google(google_session, url, title_tag.get_text())
+        
+        # If we found real competitors from Google, always show them
+        if competitors:
+            competitor_list = "\n".join([f"- {c['title']}: {c['url']}" for c in competitors[:3]])
+            all_entities.append({
+                "type": "monster",
+                "severity": "high",
+                "title": "Real Competitors Detected",
+                "description": f"Found {len(competitors)} competitors currently ranking for your keywords in Google search results",
+                "url": url,
+                "fix_suggestion": f"Top competitors ranking for your keywords:\n\n{competitor_list}\n\nAnalyze their SEO strategies, content quality, and technical implementation to identify opportunities.",
+                "suggested_code": f"# Competitor Analysis Checklist:\n# 1. Compare title tags and meta descriptions\n# 2. Analyze content depth and structure\n# 3. Check their backlink profiles\n# 4. Review their technical SEO (schema, speed)\n# 5. Identify content gaps you can fill"
+            })
+        
+        # If site has significant issues, competitors are likely outranking you
+        elif haunting_score > 40 or critical_issues > 0:
+            all_entities.append({
+                "type": "monster",
+                "severity": "high",
+                "title": "Competitor Advantage Detected",
+                "description": f"Your site has {len(all_entities)} SEO issues that competitors may be exploiting to outrank you",
+                "url": url,
+                "fix_suggestion": "Analyze top-ranking competitors for your target keywords. Focus on fixing critical issues first to close the gap.",
+                "suggested_code": "# Recommended Actions:\n1. Identify your top 3 competitors\n2. Compare their title tags and meta descriptions\n3. Analyze their content depth and structure\n4. Check their backlink profiles\n5. Fix your critical issues to compete"
+            })
+        
+        # If site has good structure but missing advanced features
+        if haunting_score < 40 and len([e for e in all_entities if e.get('type') == 'specter']) > 0:
+            all_entities.append({
+                "type": "monster",
+                "severity": "medium",
+                "title": "Competitive Gap in Technical SEO",
+                "description": "Competitors with better technical SEO (schema markup, structured data) may rank higher",
+                "url": url,
+                "fix_suggestion": "Implement advanced SEO features like Schema.org markup to compete with technically optimized competitors",
+                "suggested_code": '<script type="application/ld+json">\n{\n  "@context": "https://schema.org",\n  "@type": "Organization",\n  "name": "Your Company",\n  "url": "' + url + '"\n}\n</script>'
+            })
+        
+        # If site has content gaps (missing alt text, few links)
+        phantom_count = len([e for e in all_entities if e.get('type') == 'phantom'])
+        if phantom_count > 0 or len([e for e in all_entities if 'Few Internal Links' in e.get('title', '')]) > 0:
+            all_entities.append({
+                "type": "monster",
+                "severity": "low",
+                "title": "Content Strategy Opportunity",
+                "description": "Competitors with richer content and better internal linking may capture more traffic",
+                "url": url,
+                "fix_suggestion": "Expand your content strategy: add descriptive alt text to images, create more internal links, and develop comprehensive content",
+                "suggested_code": "# Content Improvement Checklist:\n- Add alt text to all images\n- Create 5+ internal links per page\n- Write comprehensive content (1500+ words for key pages)\n- Add multimedia (images, videos)\n- Update content regularly"
+            })
         
         # Generate recommendations
         recommendations = [

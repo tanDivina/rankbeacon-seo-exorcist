@@ -6,6 +6,9 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Built with Kiro](https://img.shields.io/badge/Built%20with-Kiro-purple)](https://kiro.ai)
 
+**Created by:** Dorien Van Den Abbeele  
+**LinkedIn:** [linkedin.com/in/dorien-van-den-abbeele-136170b](https://www.linkedin.com/in/dorien-van-den-abbeele-136170b/)
+
 **RankBeacon** transforms boring SEO analysis into a supernatural adventure. Hunt ghosts (404 errors), track zombies (orphaned pages), and battle monsters (competitor threats) with AI-powered insights.
 
 ## 🎃 Features
@@ -112,7 +115,153 @@ rankbeacon-seo-exorcist/
 3. **View your Haunting Score** and detected entities
 4. **Expand each issue** to see AI-powered fix suggestions
 5. **Mark issues as fixed** to track your progress
-6. **Export your report** as JSON or PDF
+6. **Share your results** on social media or copy the report
+
+## 🔌 REST API
+
+RankBeacon provides a REST API for programmatic access.
+
+> **Note:** The API only accepts POST requests. Opening the URL in a browser will show "Method Not Allowed" - use curl or an API client instead.
+
+### Analyze Endpoint
+
+**URL:** `https://autumn-dodge-probability-borders.trycloudflare.com/api/analyze`  
+**Method:** `POST`  
+**Content-Type:** `application/json`
+
+**Request Body:**
+```json
+{
+  "url": "https://example.com",
+  "depth": 3,
+  "include_competitors": true,
+  "use_js_rendering": false
+}
+```
+
+### Response
+
+```json
+{
+  "url": "https://example.com",
+  "haunting_score": 42,
+  "entities": [
+    {
+      "type": "ghost",
+      "severity": "critical",
+      "title": "Missing Page Title",
+      "description": "No title tag found - critical for SEO",
+      "url": "https://example.com",
+      "fix_suggestion": "Add a descriptive <title> tag",
+      "suggested_code": "<title>Your Page Title</title>"
+    }
+  ],
+  "recommendations": [
+    "Optimize your title tags and meta descriptions",
+    "Ensure all images have descriptive alt text"
+  ],
+  "pages_analyzed": 3,
+  "total_issues": 12
+}
+```
+
+### Entity Types
+
+- **👻 ghost** - Critical missing elements (404s, missing meta tags)
+- **🧟 zombie** - Structural issues (orphaned pages, broken links)
+- **👹 monster** - Competitor threats (from Google Search API)
+- **💀 specter** - Technical SEO issues (schema, performance)
+- **🌫️ phantom** - Content gaps (missing alt text, thin content)
+
+### Example Usage
+
+**Basic Analysis:**
+```bash
+curl -X POST https://autumn-dodge-probability-borders.trycloudflare.com/api/analyze \
+  -H "Content-Type: application/json" \
+  -d '{"url":"example.com","depth":1}'
+```
+
+**With Competitor Analysis (Google Search API):**
+```bash
+curl -X POST https://autumn-dodge-probability-borders.trycloudflare.com/api/analyze \
+  -H "Content-Type: application/json" \
+  -d '{"url":"example.com","depth":3,"include_competitors":true}'
+```
+
+**JavaScript Rendering for SPAs:**
+```bash
+curl -X POST https://autumn-dodge-probability-borders.trycloudflare.com/api/analyze \
+  -H "Content-Type: application/json" \
+  -d '{"url":"example.com","use_js_rendering":true}'
+```
+
+**Test it now:**
+```bash
+# Quick test - should return results in ~2 seconds
+curl -X POST https://autumn-dodge-probability-borders.trycloudflare.com/api/analyze \
+  -H "Content-Type: application/json" \
+  -d '{"url":"example.com","depth":1}' | python3 -m json.tool
+```
+
+### Use Cases
+
+**1. CI/CD Integration**
+```yaml
+# .github/workflows/seo-check.yml
+- name: SEO Health Check
+  run: |
+    curl -X POST https://your-api/api/analyze \
+      -H "Content-Type: application/json" \
+      -d '{"url":"${{ env.PRODUCTION_URL }}","depth":3}' \
+      | jq '.haunting_score' > seo-score.txt
+```
+
+**2. Monitoring Dashboard**
+```python
+# Monitor multiple sites daily
+sites = ['site1.com', 'site2.com', 'site3.com']
+for site in sites:
+    response = requests.post(api_url, json={'url': site, 'depth': 1})
+    score = response.json()['haunting_score']
+    send_alert_if_score_drops(site, score)
+```
+
+**3. Client Reporting**
+```javascript
+// Generate weekly SEO reports for clients
+const clients = await getClients();
+for (const client of clients) {
+  const analysis = await analyzeSite(client.url);
+  await sendReport(client.email, analysis);
+}
+```
+
+**4. Bulk Analysis**
+```bash
+# Analyze all pages in sitemap
+cat sitemap.txt | while read url; do
+  curl -X POST https://your-api/api/analyze \
+    -H "Content-Type: application/json" \
+    -d "{\"url\":\"$url\",\"depth\":1}" >> results.json
+done
+```
+
+**5. Slack/Discord Bot**
+```python
+# SEO bot for team notifications
+@bot.command()
+async def check_seo(ctx, url: str):
+    result = analyze_site(url)
+    await ctx.send(f"SEO Score: {result['haunting_score']}/100\n"
+                   f"Issues found: {len(result['entities'])}")
+```
+
+### Rate Limits
+
+- Free tier: 100 requests/day
+- Competitor analysis uses Google Custom Search API (100 searches/day free)
+- No authentication required (for now)
 
 ## 🧪 Testing
 

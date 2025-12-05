@@ -12,6 +12,7 @@ export default function Home() {
   const [result, setResult] = useState<any>(null);
   const [error, setError] = useState('');
   const [useJsRendering, setUseJsRendering] = useState(true);
+  const [includeCompetitors, setIncludeCompetitors] = useState(true);
   const [depth, setDepth] = useState(3);
   const [expandedIssue, setExpandedIssue] = useState<number | null>(null);
   const [fixedIssues, setFixedIssues] = useState<Set<number>>(new Set());
@@ -426,7 +427,7 @@ export default function Home() {
         body: JSON.stringify({
           url: url.startsWith('http') ? url : `https://${url}`,
           depth: depth,
-          include_competitors: false,
+          include_competitors: includeCompetitors,
           use_js_rendering: useJsRendering
         }),
       });
@@ -885,7 +886,7 @@ async redirects() {
     if (!result) return;
     
     const report = `
-🎃 RANKBEACON SEO EXORCISM REPORT 🎃
+💀 RANKBEACON SEO EXORCISM REPORT 💀
 ═══════════════════════════════════════
 
 📊 HAUNTING SCORE: ${result.haunting_score}/100
@@ -1078,21 +1079,6 @@ Banishing SEO demons since 2025 🔮
               {!isProfessionalMode && <span className="text-8xl md:text-9xl opacity-70">💀</span>}
             </div>
           <div className="absolute top-4 right-4 flex items-center space-x-2">
-              {/* Achievements Badge */}
-              {achievements.length > 0 && (
-                <div className="relative">
-                  <button
-                    className="px-3 py-2 bg-yellow-900/50 hover:bg-yellow-800/50 rounded-lg border border-yellow-500/30 hover:border-yellow-500/50 transition-all"
-                    title={`${achievements.length} achievement${achievements.length > 1 ? 's' : ''} unlocked`}
-                  >
-                    <span className="text-xl">🏆</span>
-                  </button>
-                  <span className="absolute -top-1 -right-1 bg-yellow-500 text-black text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center animate-pulse">
-                    {achievements.length}
-                  </span>
-                </div>
-              )}
-              
               {/* Theme Toggle */}
               <button
                 onClick={() => {
@@ -1160,8 +1146,8 @@ Banishing SEO demons since 2025 🔮
       </header>
 
       {/* Hero Section */}
-      <main className="relative z-10 container mx-auto px-4 py-16">
-        <div className="max-w-4xl mx-auto text-center mb-16">
+      <main className="relative z-10 container mx-auto px-4 py-8">
+        <div className="max-w-4xl mx-auto text-center mb-8">
           <p className={`text-xl mb-4 ${isProfessionalMode ? 'text-gray-700' : 'text-gray-300'}`}>
             {isProfessionalMode ? (
               <>
@@ -1261,37 +1247,68 @@ Banishing SEO demons since 2025 🔮
               )}
             </div>
             
-            {/* Depth Slider */}
+            {/* Depth Selector - Slider */}
             <div className="mt-4">
-              <label className={`block text-sm mb-2 ${
+              <label className={`block text-sm mb-2 text-center ${
                 isProfessionalMode ? 'text-gray-700 font-sans' : 'text-gray-300'
               }`}>
                 {isProfessionalMode ? '📊' : '🕷️'} Crawl Depth: <span className={`font-semibold ${
                   isProfessionalMode ? 'text-blue-600' : 'text-red-400'
                 }`}>{depth} page{depth > 1 ? 's' : ''}</span>
               </label>
-              <input
-                type="range"
-                min="1"
-                max="10"
-                value={depth}
-                onChange={(e) => setDepth(parseInt(e.target.value))}
-                className={`w-full h-2 rounded-lg appearance-none cursor-pointer ${
-                  isProfessionalMode 
-                    ? 'bg-gray-200 accent-blue-600' 
-                    : 'bg-gray-700 accent-red-700'
-                }`}
-              />
-              <div className={`flex justify-between text-xs mt-1 ${
+              
+              {/* Slider Input */}
+              <div className="px-4">
+                <input
+                  type="range"
+                  min="1"
+                  max="10"
+                  value={depth}
+                  onChange={(e) => setDepth(parseInt(e.target.value))}
+                  className={`w-full h-2 rounded-lg appearance-none cursor-pointer ${
+                    isProfessionalMode 
+                      ? 'bg-gray-200 accent-blue-600' 
+                      : 'bg-gray-800 accent-red-600'
+                  }`}
+                  style={{
+                    background: isProfessionalMode
+                      ? `linear-gradient(to right, #2563eb 0%, #2563eb ${(depth - 1) * 11.11}%, #e5e7eb ${(depth - 1) * 11.11}%, #e5e7eb 100%)`
+                      : `linear-gradient(to right, #dc2626 0%, #dc2626 ${(depth - 1) * 11.11}%, #1f2937 ${(depth - 1) * 11.11}%, #1f2937 100%)`
+                  }}
+                />
+              </div>
+              
+              {/* Quick Select Buttons */}
+              <div className="flex gap-2 justify-center flex-wrap mt-3">
+                {[1, 3, 5, 10].map((d) => (
+                  <button
+                    key={d}
+                    onClick={() => setDepth(d)}
+                    className={`px-3 py-1 rounded-lg text-xs font-semibold transition-all ${
+                      depth === d
+                        ? isProfessionalMode
+                          ? 'bg-blue-600 text-white'
+                          : 'bg-red-600 text-white'
+                        : isProfessionalMode
+                          ? 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                          : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
+                    }`}
+                  >
+                    {d}
+                  </button>
+                ))}
+              </div>
+              
+              <div className={`flex justify-between text-xs mt-2 px-2 ${
                 isProfessionalMode ? 'text-gray-600' : 'text-gray-500'
               }`}>
-                <span>Quick (1)</span>
-                <span>Deep (10)</span>
+                <span>⚡ Quick</span>
+                <span>🔍 Deep</span>
               </div>
             </div>
             
-            {/* JavaScript Rendering Toggle */}
-            <div className="mt-4 flex items-center justify-center space-x-3">
+            {/* Options Toggles */}
+            <div className="mt-4 flex flex-col items-center justify-center space-y-2">
               <label className="flex items-center space-x-2 cursor-pointer">
                 <input
                   type="checkbox"
@@ -1309,6 +1326,26 @@ Banishing SEO demons since 2025 🔮
                   {isProfessionalMode ? '⚙️' : '🎭'} Enable JavaScript Rendering <span className={
                     isProfessionalMode ? 'text-blue-600' : 'text-red-400'
                   }>(for React/Vue/Angular sites)</span>
+                </span>
+              </label>
+              
+              <label className="flex items-center space-x-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={includeCompetitors}
+                  onChange={(e) => setIncludeCompetitors(e.target.checked)}
+                  className={`w-5 h-5 rounded focus:ring-2 ${
+                    isProfessionalMode 
+                      ? 'border-gray-300 bg-white text-blue-600 focus:ring-blue-500' 
+                      : 'border-red-600 bg-gray-900 text-red-700 focus:ring-red-600'
+                  }`}
+                />
+                <span className={`text-sm ${
+                  isProfessionalMode ? 'text-gray-700 font-sans' : 'text-gray-300'
+                }`}>
+                  {isProfessionalMode ? '🔍' : '👹'} Analyze Competitors <span className={
+                    isProfessionalMode ? 'text-blue-600' : 'text-red-400'
+                  }>(uses Google Search API)</span>
                 </span>
               </label>
             </div>
@@ -1569,6 +1606,28 @@ Banishing SEO demons since 2025 🔮
                         </p>
                       </div>
                     </div>
+                    <div className="flex items-center space-x-3">
+                      <span className="text-2xl">{isProfessionalMode ? '🟣' : '💀'}</span>
+                      <div>
+                        <p className={`text-sm ${isProfessionalMode ? 'text-gray-600' : 'text-gray-400'}`}>
+                          {isProfessionalMode ? 'Technical' : 'Specters'}
+                        </p>
+                        <p className={`text-xl font-bold ${isProfessionalMode ? 'text-purple-600' : 'text-purple-300'}`}>
+                          {result.entities.filter((e: any) => e.type === 'specter').length}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-center space-x-3">
+                      <span className="text-2xl">{isProfessionalMode ? '⚪' : '🌫️'}</span>
+                      <div>
+                        <p className={`text-sm ${isProfessionalMode ? 'text-gray-600' : 'text-gray-400'}`}>
+                          {isProfessionalMode ? 'Content Gaps' : 'Phantoms'}
+                        </p>
+                        <p className={`text-xl font-bold ${isProfessionalMode ? 'text-gray-600' : 'text-gray-300'}`}>
+                          {result.entities.filter((e: any) => e.type === 'phantom').length}
+                        </p>
+                      </div>
+                    </div>
                   </div>
                 </div>
 
@@ -1602,7 +1661,13 @@ Banishing SEO demons since 2025 🔮
                         ? `Just analyzed my website's SEO health and scored ${score}/100! 📊 RankBeacon SEO Exorcist provides actionable insights in seconds.`
                         : `Just used RankBeacon SEO Exorcist to analyze my site! 👻 Found ${result.entities.length} issues to fix. Haunting Score: ${score}/100`;
                       const url = 'https://rankbeacon-exorcist.vercel.app';
-                      window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}&summary=${encodeURIComponent(text)}`, '_blank');
+                      // LinkedIn doesn't support pre-filled text anymore, but we can use title parameter
+                      const linkedInUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`;
+                      // Copy text to clipboard so user can paste it
+                      navigator.clipboard.writeText(text).then(() => {
+                        alert('✅ Share text copied to clipboard! Paste it in your LinkedIn post.');
+                      });
+                      window.open(linkedInUrl, '_blank', 'width=600,height=600');
                       playSound('click');
                     }}
                     className={`px-4 py-2 rounded-lg font-semibold transition-all flex items-center gap-2 ${
@@ -1985,26 +2050,39 @@ Banishing SEO demons since 2025 🔮
                                   e.stopPropagation();
                                   if (!isFixed) markAsFixed(index);
                                 }}
-                                className="w-6 h-6 rounded border-2 border-red-600 bg-gray-900 text-green-500 focus:ring-2 focus:ring-red-600 cursor-pointer"
+                                className={`w-6 h-6 rounded cursor-pointer ${
+                                  isProfessionalMode
+                                    ? 'border-2 border-blue-400 bg-white text-blue-600 focus:ring-2 focus:ring-blue-500'
+                                    : 'border-2 border-red-600 bg-gray-900 text-green-500 focus:ring-2 focus:ring-red-600'
+                                }`}
                               />
                             </div>
                             
                             {/* Icon and Content */}
                             <div className="flex-1">
                               <div className="flex items-center space-x-3 mb-2">
-                                <span className={`text-4xl ${isFixed ? 'grayscale' : ''}`}>
-                                  {isProfessionalMode ? (
-                                    entity.type === 'ghost' ? '🔴' :
-                                    entity.type === 'zombie' ? '🟡' :
-                                    entity.type === 'monster' ? '🔵' :
-                                    entity.type === 'specter' ? '⚙️' : '📊'
-                                  ) : (
-                                    entity.type === 'ghost' ? '👻' :
-                                    entity.type === 'zombie' ? '🧟' :
-                                    entity.type === 'monster' ? '👹' :
-                                    entity.type === 'specter' ? '💀' : '🌫️'
-                                  )}
-                                </span>
+                                {isProfessionalMode ? (
+                                  <div className={`w-10 h-10 rounded-full flex items-center justify-center ${isFixed ? 'opacity-50' : ''} ${
+                                    entity.type === 'ghost' ? 'bg-red-500' :
+                                    entity.type === 'zombie' ? 'bg-yellow-500' :
+                                    entity.type === 'monster' ? 'bg-blue-500' :
+                                    entity.type === 'specter' ? 'bg-purple-500' : 'bg-gray-500'
+                                  }`}>
+                                    <span className="text-white text-xl font-bold">
+                                      {entity.type === 'ghost' ? '!' :
+                                       entity.type === 'zombie' ? 'Z' :
+                                       entity.type === 'monster' ? 'M' :
+                                       entity.type === 'specter' ? 'S' : 'P'}
+                                    </span>
+                                  </div>
+                                ) : (
+                                  <span className={`text-4xl ${isFixed ? 'grayscale' : ''}`}>
+                                    {entity.type === 'ghost' ? '👻' :
+                                     entity.type === 'zombie' ? '🧟' :
+                                     entity.type === 'monster' ? '👹' :
+                                     entity.type === 'specter' ? '💀' : '🌫️'}
+                                  </span>
+                                )}
                                 <div className="flex-1">
                                   <div className="flex items-center space-x-2 mb-1">
                                     <h4 className={`text-lg font-semibold ${
@@ -2436,7 +2514,7 @@ Banishing SEO demons since 2025 🔮
         {/* Features Section */}
         {!result && !loading && (
           <>
-            <div className="max-w-6xl mx-auto grid md:grid-cols-3 gap-8 mt-16">
+            <div className="max-w-6xl mx-auto grid md:grid-cols-3 gap-8 mt-8">
               {isProfessionalMode ? (
                 <>
                   <div className="text-center p-8 bg-white backdrop-blur-sm rounded-xl border border-gray-200 hover:border-blue-400 transition-all hover:shadow-xl">
@@ -2474,6 +2552,88 @@ Banishing SEO demons since 2025 🔮
                   </div>
                 </>
               )}
+            </div>
+
+            {/* Entity Types Legend */}
+            <div className="max-w-5xl mx-auto mt-12">
+              <div className={`backdrop-blur-md p-6 ${
+                isProfessionalMode 
+                  ? 'bg-white shadow-lg border border-gray-200 rounded-lg' 
+                  : 'bg-gray-800/30 border border-red-600/20 rounded-xl'
+              }`}>
+                <h3 className={`text-xl font-bold mb-4 text-center ${
+                  isProfessionalMode ? 'text-gray-900 font-sans' : 'text-red-300'
+                }`}>
+                  {isProfessionalMode ? '📊 Issue Categories' : '👻 Supernatural Entity Guide'}
+                </h3>
+                <div className="grid md:grid-cols-5 gap-4">
+                  <div className="text-center">
+                    <div className="text-3xl mb-2">{isProfessionalMode ? '🔴' : '👻'}</div>
+                    <h4 className={`font-semibold text-sm mb-1 ${
+                      isProfessionalMode ? 'text-gray-900 font-sans' : 'text-red-300'
+                    }`}>
+                      {isProfessionalMode ? 'Critical' : 'Ghosts'}
+                    </h4>
+                    <p className={`text-xs ${
+                      isProfessionalMode ? 'text-gray-600 font-sans' : 'text-gray-400'
+                    }`}>
+                      Missing critical elements
+                    </p>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-3xl mb-2">{isProfessionalMode ? '🟡' : '🧟'}</div>
+                    <h4 className={`font-semibold text-sm mb-1 ${
+                      isProfessionalMode ? 'text-gray-900 font-sans' : 'text-green-300'
+                    }`}>
+                      {isProfessionalMode ? 'Warnings' : 'Zombies'}
+                    </h4>
+                    <p className={`text-xs ${
+                      isProfessionalMode ? 'text-gray-600 font-sans' : 'text-gray-400'
+                    }`}>
+                      Structural issues
+                    </p>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-3xl mb-2">{isProfessionalMode ? '🔵' : '👹'}</div>
+                    <h4 className={`font-semibold text-sm mb-1 ${
+                      isProfessionalMode ? 'text-gray-900 font-sans' : 'text-red-300'
+                    }`}>
+                      {isProfessionalMode ? 'Competitive' : 'Monsters'}
+                    </h4>
+                    <p className={`text-xs ${
+                      isProfessionalMode ? 'text-gray-600 font-sans' : 'text-gray-400'
+                    }`}>
+                      Competitor threats
+                    </p>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-3xl mb-2">{isProfessionalMode ? '🟣' : '💀'}</div>
+                    <h4 className={`font-semibold text-sm mb-1 ${
+                      isProfessionalMode ? 'text-gray-900 font-sans' : 'text-purple-300'
+                    }`}>
+                      {isProfessionalMode ? 'Technical' : 'Specters'}
+                    </h4>
+                    <p className={`text-xs ${
+                      isProfessionalMode ? 'text-gray-600 font-sans' : 'text-gray-400'
+                    }`}>
+                      Technical SEO
+                    </p>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-3xl mb-2">{isProfessionalMode ? '⚪' : '🌫️'}</div>
+                    <h4 className={`font-semibold text-sm mb-1 ${
+                      isProfessionalMode ? 'text-gray-900 font-sans' : 'text-gray-300'
+                    }`}>
+                      {isProfessionalMode ? 'Content Gaps' : 'Phantoms'}
+                    </h4>
+                    <p className={`text-xs ${
+                      isProfessionalMode ? 'text-gray-600 font-sans' : 'text-gray-400'
+                    }`}>
+                      Missing content
+                    </p>
+                  </div>
+                </div>
+              </div>
             </div>
 
             {/* MCP Integration Highlight */}
@@ -2568,7 +2728,7 @@ Banishing SEO demons since 2025 🔮
             isProfessionalMode ? 'bg-white' : 'bg-gray-900 border-2 border-red-600/50'
           }`}>
             <div className="text-center mb-6">
-              <div className="text-6xl mb-4">{isProfessionalMode ? '👋' : '🎃'}</div>
+              <div className="text-6xl mb-4">{isProfessionalMode ? '👋' : '💀'}</div>
               <h2 className={`text-3xl font-bold mb-2 ${
                 isProfessionalMode ? 'text-gray-900 font-sans' : 'text-white'
               }`}>
@@ -2787,7 +2947,7 @@ Banishing SEO demons since 2025 🔮
       )}
 
       {/* Footer */}
-      <footer className={`relative z-10 backdrop-blur-sm mt-20 ${
+      <footer className={`relative z-10 backdrop-blur-sm mt-8 ${
         isProfessionalMode ? 'border-t border-gray-200' : 'border-t border-red-900/30'
       }`}>
         <div className="container mx-auto px-4 py-8">
@@ -2859,10 +3019,10 @@ Banishing SEO demons since 2025 🔮
                 <ul className={`text-sm space-y-1 ${
                   isProfessionalMode ? 'text-gray-600 font-sans' : 'text-gray-400'
                 }`}>
-                  <li>• Quick SEO checks</li>
-                  <li>• Learn best practices</li>
+                  <li>• Instant SEO analysis</li>
+                  <li>• Educational tooltips</li>
                   <li>• Free to use</li>
-                  <li>• Fun interface</li>
+                  <li>• Dual mode interface</li>
                 </ul>
               </div>
 
@@ -2879,10 +3039,10 @@ Banishing SEO demons since 2025 🔮
                 <ul className={`text-sm space-y-1 ${
                   isProfessionalMode ? 'text-gray-600 font-sans' : 'text-gray-400'
                 }`}>
-                  <li>• Client presentations</li>
-                  <li>• Export reports</li>
-                  <li>• Share results</li>
                   <li>• Professional mode</li>
+                  <li>• Copy report text</li>
+                  <li>• Share on social</li>
+                  <li>• Competitor analysis</li>
                 </ul>
               </div>
 
@@ -2899,10 +3059,10 @@ Banishing SEO demons since 2025 🔮
                 <ul className={`text-sm space-y-1 ${
                   isProfessionalMode ? 'text-gray-600 font-sans' : 'text-gray-400'
                 }`}>
-                  <li>• API integration</li>
-                  <li>• Automated scans</li>
-                  <li>• Team features</li>
-                  <li>• White-label ready</li>
+                  <li>• REST API access</li>
+                  <li>• Bulk analysis</li>
+                  <li>• Google Search integration</li>
+                  <li>• MCP integration</li>
                 </ul>
               </div>
 
@@ -2919,10 +3079,10 @@ Banishing SEO demons since 2025 🔮
                 <ul className={`text-sm space-y-1 ${
                   isProfessionalMode ? 'text-gray-600 font-sans' : 'text-gray-400'
                 }`}>
-                  <li>• Teaching SEO</li>
-                  <li>• Interactive learning</li>
+                  <li>• Teaching SEO concepts</li>
+                  <li>• Interactive demos</li>
                   <li>• Visual feedback</li>
-                  <li>• Gamification</li>
+                  <li>• Engaging themes</li>
                 </ul>
               </div>
             </div>
@@ -2935,7 +3095,7 @@ Banishing SEO demons since 2025 🔮
             <h3 className={`text-xl font-bold mb-4 text-center ${
               isProfessionalMode ? 'text-gray-900 font-sans' : 'text-white'
             }`}>
-              Why RankBeacon Stands Out
+              Why RankBeacon
             </h3>
             <div className="grid md:grid-cols-3 gap-4">
               <div className="text-center">

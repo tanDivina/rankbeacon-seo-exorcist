@@ -1,5 +1,8 @@
 # 🎃 RankBeacon SEO Exorcist - Final Project Summary
 
+**Created by:** Dorien Van Den Abbeele  
+**LinkedIn:** [linkedin.com/in/dorien-van-den-abbeele-136170b](https://www.linkedin.com/in/dorien-van-den-abbeele-136170b/)
+
 ## Overview
 **RankBeacon SEO Exorcist** is a Halloween-themed SEO analysis platform that transforms technical SEO audits into an engaging, spooky experience. Built for the Kiro Hackathon, it combines powerful SEO analysis with a unique VHS horror aesthetic.
 

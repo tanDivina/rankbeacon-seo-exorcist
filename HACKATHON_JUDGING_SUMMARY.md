@@ -1,5 +1,8 @@
 # RankBeacon SEO Exorcist - Hackathon Judging Summary
 
+**Created by:** Dorien Van Den Abbeele  
+**LinkedIn:** [linkedin.com/in/dorien-van-den-abbeele-136170b](https://www.linkedin.com/in/dorien-van-den-abbeele-136170b/)
+
 ## 🎯 One-Sentence Pitch
 RankBeacon transforms boring SEO analysis into an engaging supernatural adventure with dual personalities (Professional + Costume modes), AI-powered insights, and delightful gamification—all built in 8 hours using Kiro's full feature set.
 
