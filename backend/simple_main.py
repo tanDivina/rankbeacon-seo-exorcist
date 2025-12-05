@@ -242,6 +242,9 @@ async def analyze(request: AnalyzeRequest):
                     })
                     page_issues += 5
         
+                # Get H1 tags early (needed for meta description generation)
+                h1_tags = soup.find_all('h1')
+        
                 # Check for meta description
                 meta_desc = soup.find('meta', attrs={'name': 'description'})
                 if not meta_desc:
@@ -384,8 +387,7 @@ async def analyze(request: AnalyzeRequest):
                         })
                         page_issues += 3
         
-                # Check for H1 tags
-                h1_tags = soup.find_all('h1')
+                # Check for H1 tags (already defined earlier)
                 if len(h1_tags) == 0:
                     # Suggest using title or first heading
                     suggested_h1 = title_text if title_text else "Your Main Heading Here"
