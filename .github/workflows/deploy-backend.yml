@@ -1,11 +1,12 @@
-name: Deploy Backend to AWS
+name: Deploy Backend to AWS (Disabled)
 
 on:
-  push:
-    branches: [main]
-    paths:
-      - 'backend/**'
   workflow_dispatch:
+  # Disabled automatic deployment - using EC2 with manual deployment
+  # push:
+  #   branches: [main]
+  #   paths:
+  #     - 'backend/**'
 
 env:
   AWS_REGION: us-east-1
