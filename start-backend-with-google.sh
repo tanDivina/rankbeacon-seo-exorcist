@@ -16,9 +16,12 @@ ssh -i "$KEY_FILE" ubuntu@$EC2_IP 'bash -s' << 'ENDSSH'
     pkill -f "uvicorn.*8000"
     sleep 2
     
-    # Start with Google API credentials
-    GOOGLE_API_KEY="AIzaSyAxF6QqZCnbD-4x1qM-FOQCl-8NrRoeY0I" \
-    GOOGLE_CSE_ID="b0c9bb4f214994348" \
+    # Start with Google API credentials from environment
+    # Set these in your environment before running:
+    # export GOOGLE_API_KEY="your-key-here"
+    # export GOOGLE_CSE_ID="your-cse-id-here"
+    GOOGLE_API_KEY="${GOOGLE_API_KEY}" \
+    GOOGLE_CSE_ID="${GOOGLE_CSE_ID}" \
     nohup python3 -m uvicorn simple_main:app --host 0.0.0.0 --port 8000 > /tmp/backend.log 2>&1 &
     
     sleep 3
