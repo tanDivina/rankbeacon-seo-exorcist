@@ -144,7 +144,7 @@ async def analyze(request: AnalyzeRequest):
                     all_entities.append({
                         "type": "ghost",
                         "severity": "critical",
-                        "title": "👻 Missing Page Title",
+                        "title": "Missing Page Title",
                         "description": "No title tag found - critical for SEO",
                         "url": page_url,
                         "fix_suggestion": f"Add a descriptive <title> tag with your target keywords",
@@ -157,7 +157,7 @@ async def analyze(request: AnalyzeRequest):
                     all_entities.append({
                         "type": "specter",
                         "severity": "medium",
-                        "title": "👤 Title Too Long",
+                        "title": "Title Too Long",
                         "description": f"Title is {len(title_text)} characters (recommended: 50-60)",
                         "url": page_url,
                         "fix_suggestion": "Shorten your title tag to 50-60 characters",
@@ -193,7 +193,7 @@ async def analyze(request: AnalyzeRequest):
                     all_entities.append({
                         "type": "ghost",
                         "severity": "high",
-                        "title": "👻 Missing Meta Description",
+                        "title": "Missing Meta Description",
                         "description": "No meta description found - this is crucial for search results",
                         "url": page_url,
                         "fix_suggestion": "Add a compelling meta description (150-160 characters) that summarizes your page and includes target keywords",
@@ -207,7 +207,7 @@ async def analyze(request: AnalyzeRequest):
                         all_entities.append({
                             "type": "specter",
                             "severity": "medium",
-                            "title": "👤 Meta Description Too Short",
+                            "title": "Meta Description Too Short",
                             "description": f"Meta description is only {len(desc_content)} characters (recommended: 150-160)",
                             "url": page_url,
                             "fix_suggestion": "Expand your meta description to 150-160 characters for better search results",
@@ -220,7 +220,7 @@ async def analyze(request: AnalyzeRequest):
                         all_entities.append({
                             "type": "specter",
                             "severity": "low",
-                            "title": "👤 Meta Description Too Long",
+                            "title": "Meta Description Too Long",
                             "description": f"Meta description is {len(desc_content)} characters (recommended: 150-160)",
                             "url": page_url,
                             "fix_suggestion": "Shorten your meta description to 150-160 characters to avoid truncation in search results",
@@ -237,7 +237,7 @@ async def analyze(request: AnalyzeRequest):
                     all_entities.append({
                         "type": "zombie",
                         "severity": "high",
-                        "title": "🧟 Missing H1 Tag",
+                        "title": "Missing H1 Tag",
                         "description": "No H1 heading found on the page",
                         "url": page_url,
                         "fix_suggestion": "Add one H1 tag with your primary keyword",
@@ -250,7 +250,7 @@ async def analyze(request: AnalyzeRequest):
                     all_entities.append({
                         "type": "zombie",
                         "severity": "medium",
-                        "title": "🧟 Multiple H1 Tags",
+                        "title": "Multiple H1 Tags",
                         "description": f"Found {len(h1_tags)} H1 tags (recommended: 1)",
                         "url": page_url,
                         "fix_suggestion": "Use only one H1 tag per page",
@@ -305,7 +305,7 @@ async def analyze(request: AnalyzeRequest):
                     all_entities.append({
                         "type": "phantom",
                         "severity": "medium",
-                        "title": "🌫️ Images Missing Alt Text",
+                        "title": "Images Missing Alt Text",
                         "description": f"{len(images_without_alt)} out of {len(images)} images lack alt text",
                         "url": page_url,
                         "fix_suggestion": "Add descriptive alt text to all images for accessibility and SEO",
@@ -322,7 +322,7 @@ async def analyze(request: AnalyzeRequest):
                     all_entities.append({
                         "type": "zombie",
                         "severity": "low",
-                        "title": "🧟 Few Internal Links",
+                        "title": "Few Internal Links",
                         "description": f"Only {len(internal_links)} internal links found",
                         "url": page_url,
                         "fix_suggestion": "Add more internal links to improve site structure and SEO"
@@ -335,7 +335,7 @@ async def analyze(request: AnalyzeRequest):
                     all_entities.append({
                         "type": "specter",
                         "severity": "medium",
-                        "title": "👤 No Schema Markup",
+                        "title": "No Schema Markup",
                         "description": "No structured data (JSON-LD) found",
                         "url": page_url,
                         "fix_suggestion": "Implement Schema.org markup for rich snippets"

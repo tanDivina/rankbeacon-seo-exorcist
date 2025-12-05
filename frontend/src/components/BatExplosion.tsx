@@ -102,9 +102,9 @@ export default function BatExplosion() {
         x: centerX,
         y: centerY,
         angle,
-        speed: 3 + Math.random() * 4,
+        speed: 2 + Math.random() * 2, // Slower: was 3-7, now 2-4
         rotation: Math.random() * 360,
-        size: 30 + Math.random() * 30
+        size: 40 + Math.random() * 40 // Bigger: was 30-60, now 40-80
       });
     }
     
@@ -117,8 +117,8 @@ export default function BatExplosion() {
           ...bat,
           x: bat.x + Math.cos(bat.angle) * bat.speed,
           y: bat.y + Math.sin(bat.angle) * bat.speed,
-          rotation: bat.rotation + 10,
-          speed: bat.speed * 1.08 // Accelerate faster
+          rotation: bat.rotation + 5, // Slower rotation: was 10, now 5
+          speed: bat.speed * 1.04 // Slower acceleration: was 1.08, now 1.04
         })).filter(bat => {
           // Remove bats that are off screen
           const w = typeof window !== 'undefined' ? window.innerWidth : 1440;
@@ -151,8 +151,8 @@ export default function BatExplosion() {
             fontSize: `${bat.size}px`,
             transform: `translate(-50%, -50%) rotate(${bat.rotation}deg)`,
             opacity: 0.9,
-            filter: 'drop-shadow(0 0 10px rgba(138, 43, 226, 0.8))',
-            textShadow: '0 0 20px rgba(138, 43, 226, 0.8)'
+            filter: 'drop-shadow(0 0 10px rgba(220, 38, 38, 0.8))',
+            textShadow: '0 0 20px rgba(220, 38, 38, 0.8)'
           }}
         >
           🦇

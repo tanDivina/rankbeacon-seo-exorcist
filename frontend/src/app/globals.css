@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=VT323&family=Share+Tech+Mono&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -9,7 +11,15 @@
   
   body {
     @apply bg-background text-foreground;
+    font-family: 'Share Tech Mono', 'Courier New', monospace;
     font-feature-settings: "rlig" 1, "calt" 1;
+    letter-spacing: 0.5px;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'VT323', monospace;
+    letter-spacing: 2px;
+    text-transform: uppercase;
   }
 }
 
@@ -43,10 +53,10 @@
 
 @keyframes glow {
   0%, 100% {
-    box-shadow: 0 0 5px rgba(147, 51, 234, 0.5);
+    box-shadow: 0 0 5px rgba(220, 38, 38, 0.5);
   }
   50% {
-    box-shadow: 0 0 20px rgba(147, 51, 234, 0.8), 0 0 30px rgba(147, 51, 234, 0.6);
+    box-shadow: 0 0 20px rgba(220, 38, 38, 0.8), 0 0 30px rgba(220, 38, 38, 0.6);
   }
 }
 
@@ -156,14 +166,12 @@
   animation-delay: 4s;
 }
 
-/* Spooky gradient backgrounds */
+/* VHS-style gradient backgrounds */
 .bg-spooky-gradient {
   background: linear-gradient(135deg, 
-    rgba(147, 51, 234, 0.1) 0%, 
-    rgba(79, 70, 229, 0.1) 25%, 
-    rgba(139, 92, 246, 0.1) 50%, 
-    rgba(168, 85, 247, 0.1) 75%, 
-    rgba(147, 51, 234, 0.1) 100%);
+    rgba(130, 10, 30, 0.2) 0%, 
+    rgba(60, 5, 20, 0.2) 50%, 
+    rgba(10, 0, 5, 0.2) 100%);
 }
 
 /* Custom scrollbar */
@@ -176,29 +184,29 @@
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(147, 51, 234, 0.5);
+  background: rgba(220, 38, 38, 0.5);
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(147, 51, 234, 0.7);
+  background: rgba(220, 38, 38, 0.7);
 }
 
-/* Entity type specific styling */
+/* Entity type specific styling - VHS Green Theme */
 .entity-ghost {
-  @apply bg-blue-900/20 border-blue-500/30;
+  @apply bg-gray-900/40 border-gray-600/30;
 }
 
 .entity-zombie {
-  @apply bg-green-900/20 border-green-500/30;
+  @apply bg-green-900/30 border-green-500/40;
 }
 
 .entity-monster {
-  @apply bg-red-900/20 border-red-500/30;
+  @apply bg-red-900/30 border-red-600/40;
 }
 
 .entity-specter {
-  @apply bg-purple-900/20 border-purple-500/30;
+  @apply bg-gray-800/40 border-gray-500/30;
 }
 
 /* Severity indicators */
@@ -220,9 +228,9 @@
 
 /* Interactive elements */
 .btn-exorcise {
-  @apply bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 
+  @apply bg-gradient-to-r from-red-700 to-red-900 hover:from-red-800 hover:to-black 
          text-white font-semibold py-2 px-4 rounded-lg transition-all duration-200 
-         hover:shadow-lg hover:shadow-purple-500/25;
+         hover:shadow-lg hover:shadow-red-900/50 border border-red-600/30;
 }
 
 .btn-exorcise:hover {
@@ -245,8 +253,10 @@
 
 /* Haunting score display */
 .haunting-score {
-  @apply text-6xl font-bold bg-gradient-to-r from-red-400 via-purple-400 to-pink-400 
+  @apply text-6xl font-bold bg-gradient-to-r from-red-500 via-red-400 to-orange-500 
          bg-clip-text text-transparent animate-pulse-glow;
+  font-family: 'VT323', monospace;
+  text-shadow: 0 0 20px rgba(220, 38, 38, 0.5);
 }
 
 /* Recommendation list styling */
@@ -256,6 +266,127 @@
 }
 
 /* Responsive design helpers */
+/* VHS Glitch Text Effect */
+.glitch-text {
+  position: relative;
+  color: #fff;
+  text-shadow: 
+    0.05em 0 0 rgba(255, 0, 0, 0.75),
+    -0.025em -0.05em 0 rgba(0, 255, 0, 0.75),
+    0.025em 0.05em 0 rgba(0, 0, 255, 0.75);
+  animation: glitch 500ms infinite;
+}
+
+.glitch-text::before,
+.glitch-text::after {
+  content: attr(data-text);
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.glitch-text::before {
+  left: 2px;
+  text-shadow: -2px 0 #ff00c1;
+  clip: rect(44px, 450px, 56px, 0);
+  animation: glitch-anim 5s infinite linear alternate-reverse;
+}
+
+.glitch-text::after {
+  left: -2px;
+  text-shadow: -2px 0 #00fff9, 2px 2px #ff00c1;
+  animation: glitch-anim2 1s infinite linear alternate-reverse;
+}
+
+@keyframes glitch {
+  0% {
+    text-shadow: 
+      0.05em 0 0 rgba(255, 0, 0, 0.75),
+      -0.05em -0.025em 0 rgba(0, 255, 0, 0.75),
+      -0.025em 0.05em 0 rgba(0, 0, 255, 0.75);
+  }
+  14% {
+    text-shadow: 
+      0.05em 0 0 rgba(255, 0, 0, 0.75),
+      -0.05em -0.025em 0 rgba(0, 255, 0, 0.75),
+      -0.025em 0.05em 0 rgba(0, 0, 255, 0.75);
+  }
+  15% {
+    text-shadow: 
+      -0.05em -0.025em 0 rgba(255, 0, 0, 0.75),
+      0.025em 0.025em 0 rgba(0, 255, 0, 0.75),
+      -0.05em -0.05em 0 rgba(0, 0, 255, 0.75);
+  }
+  49% {
+    text-shadow: 
+      -0.05em -0.025em 0 rgba(255, 0, 0, 0.75),
+      0.025em 0.025em 0 rgba(0, 255, 0, 0.75),
+      -0.05em -0.05em 0 rgba(0, 0, 255, 0.75);
+  }
+  50% {
+    text-shadow: 
+      0.025em 0.05em 0 rgba(255, 0, 0, 0.75),
+      0.05em 0 0 rgba(0, 255, 0, 0.75),
+      0 -0.05em 0 rgba(0, 0, 255, 0.75);
+  }
+  99% {
+    text-shadow: 
+      0.025em 0.05em 0 rgba(255, 0, 0, 0.75),
+      0.05em 0 0 rgba(0, 255, 0, 0.75),
+      0 -0.05em 0 rgba(0, 0, 255, 0.75);
+  }
+  100% {
+    text-shadow: 
+      -0.025em 0 0 rgba(255, 0, 0, 0.75),
+      -0.025em -0.025em 0 rgba(0, 255, 0, 0.75),
+      -0.025em -0.05em 0 rgba(0, 0, 255, 0.75);
+  }
+}
+
+@keyframes glitch-anim {
+  0% {
+    clip: rect(10px, 9999px, 31px, 0);
+  }
+  20% {
+    clip: rect(85px, 9999px, 140px, 0);
+  }
+  40% {
+    clip: rect(20px, 9999px, 80px, 0);
+  }
+  60% {
+    clip: rect(50px, 9999px, 100px, 0);
+  }
+  80% {
+    clip: rect(5px, 9999px, 90px, 0);
+  }
+  100% {
+    clip: rect(70px, 9999px, 110px, 0);
+  }
+}
+
+@keyframes glitch-anim2 {
+  0% {
+    clip: rect(65px, 9999px, 119px, 0);
+  }
+  20% {
+    clip: rect(40px, 9999px, 66px, 0);
+  }
+  40% {
+    clip: rect(79px, 9999px, 99px, 0);
+  }
+  60% {
+    clip: rect(2px, 9999px, 90px, 0);
+  }
+  80% {
+    clip: rect(30px, 9999px, 75px, 0);
+  }
+  100% {
+    clip: rect(15px, 9999px, 46px, 0);
+  }
+}
+
 @media (max-width: 768px) {
   .haunting-score {
     @apply text-4xl;
@@ -263,5 +394,9 @@
   
   .entity-card {
     @apply hover:scale-100;
+  }
+  
+  .glitch-text {
+    font-size: 2rem;
   }
 }
