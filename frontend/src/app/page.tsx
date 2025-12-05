@@ -1298,13 +1298,6 @@ Banishing SEO demons since 2025 🔮
                   </button>
                 ))}
               </div>
-              
-              <div className={`flex justify-between text-xs mt-2 px-2 ${
-                isProfessionalMode ? 'text-gray-600' : 'text-gray-500'
-              }`}>
-                <span>⚡ Quick</span>
-                <span>🔍 Deep</span>
-              </div>
             </div>
             
             {/* Options Toggles */}

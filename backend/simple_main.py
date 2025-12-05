@@ -248,12 +248,14 @@ async def analyze(request: AnalyzeRequest):
                     # Generate smart, contextual suggestion from page content
                     suggested_desc = None
                     
-                    # Strategy 1: Use first meaningful paragraph
+                    # Strategy 1: Use first meaningful paragraph (most reliable)
                     paragraphs = soup.find_all('p')
-                    for p in paragraphs[:5]:  # Check first 5 paragraphs
+                    for p in paragraphs[:10]:  # Check first 10 paragraphs
                         p_text = p.get_text().strip()
-                        # Skip very short paragraphs or navigation text
-                        if len(p_text) > 50 and not any(skip in p_text.lower() for skip in ['cookie', 'javascript', 'browser', 'click here']):
+                        # Skip very short paragraphs, navigation, or boilerplate text
+                        skip_phrases = ['cookie', 'javascript', 'browser', 'click here', 'read more', 
+                                       'learn more', 'sign up', 'subscribe', 'follow us', 'copyright']
+                        if len(p_text) > 80 and not any(skip in p_text.lower() for skip in skip_phrases):
                             desc_text = ' '.join(p_text.split())  # Clean whitespace
                             if len(desc_text) > 157:
                                 suggested_desc = desc_text[:157] + "..."
@@ -261,46 +263,64 @@ async def analyze(request: AnalyzeRequest):
                                 suggested_desc = desc_text
                             break
                     
-                    # Strategy 2: Combine H1 + first paragraph
+                    # Strategy 2: Combine H1 + first substantial paragraph
                     if not suggested_desc and h1_tags:
                         h1_text = h1_tags[0].get_text().strip()
-                        first_p = soup.find('p')
-                        if first_p:
-                            p_text = first_p.get_text().strip()
-                            combined = f"{h1_text}. {p_text}"
-                            combined = ' '.join(combined.split())
-                            if len(combined) > 157:
-                                suggested_desc = combined[:157] + "..."
-                            else:
-                                suggested_desc = combined
+                        # Find first paragraph with real content
+                        for p in paragraphs[:10]:
+                            p_text = p.get_text().strip()
+                            if len(p_text) > 30:
+                                p_text = ' '.join(p_text.split())
+                                combined = f"{h1_text}. {p_text}"
+                                if len(combined) > 157:
+                                    suggested_desc = combined[:157] + "..."
+                                else:
+                                    suggested_desc = combined
+                                break
                     
-                    # Strategy 3: Extract from article/main content
+                    # Strategy 3: Extract from article/main content areas
                     if not suggested_desc:
-                        main_content = soup.find(['article', 'main', 'div'], class_=lambda x: x and any(c in str(x).lower() for c in ['content', 'article', 'post', 'main']))
+                        main_content = soup.find(['article', 'main', 'section'])
                         if main_content:
+                            # Get text from main content, skip nav/footer
                             content_text = main_content.get_text().strip()
                             content_text = ' '.join(content_text.split())
-                            if len(content_text) > 50:
+                            if len(content_text) > 80:
                                 suggested_desc = content_text[:157] + "..." if len(content_text) > 157 else content_text
                     
-                    # Strategy 4: Use title with context
+                    # Strategy 4: Use any text content we can find
                     if not suggested_desc:
-                        if title_text:
-                            # Make it more specific based on page structure
-                            has_form = soup.find('form') is not None
-                            has_images = len(soup.find_all('img')) > 3
-                            has_list = soup.find(['ul', 'ol']) is not None
-                            
-                            if has_form:
-                                suggested_desc = f"{title_text} - Get started today. Fill out our form to learn more and take the next step."
-                            elif has_images:
-                                suggested_desc = f"{title_text} - Explore our visual guide with detailed information and examples."
-                            elif has_list:
-                                suggested_desc = f"{title_text} - Comprehensive guide with step-by-step instructions and key points."
-                            else:
-                                suggested_desc = f"{title_text} - Detailed information and insights to help you understand this topic better."
+                        # Get all text, clean it up
+                        all_text = soup.get_text().strip()
+                        all_text = ' '.join(all_text.split())
+                        # Remove common navigation/footer text
+                        lines = [line for line in all_text.split('.') if len(line.strip()) > 30]
+                        if lines:
+                            suggested_desc = lines[0].strip()
+                            if len(suggested_desc) > 157:
+                                suggested_desc = suggested_desc[:157] + "..."
+                    
+                    # Strategy 5: Use title with intelligent context (last resort)
+                    if not suggested_desc and title_text:
+                        # Extract keywords from title
+                        title_lower = title_text.lower()
+                        
+                        # Detect page type from title and structure
+                        if any(word in title_lower for word in ['shop', 'store', 'buy', 'product', 'chocolate', 'farm']):
+                            suggested_desc = f"Visit {title_text} to discover quality products and services. Browse our selection and find exactly what you need."
+                        elif any(word in title_lower for word in ['about', 'who', 'team', 'company']):
+                            suggested_desc = f"Learn about {title_text}. Discover our story, mission, and the team behind our work."
+                        elif any(word in title_lower for word in ['contact', 'reach', 'get in touch']):
+                            suggested_desc = f"{title_text} - Get in touch with us. We're here to answer your questions and help you get started."
+                        elif any(word in title_lower for word in ['blog', 'news', 'article']):
+                            suggested_desc = f"Read the latest from {title_text}. Stay updated with insights, tips, and news."
                         else:
-                            suggested_desc = "Discover valuable information and resources on this page. Learn more about our offerings and how we can help you."
+                            # Generic but better than nothing
+                            suggested_desc = f"Welcome to {title_text}. Explore our content and discover what we have to offer."
+                    
+                    # Absolute fallback
+                    if not suggested_desc:
+                        suggested_desc = "Explore this page to discover valuable information and resources tailored to your needs."
                     
                     # Ensure optimal length
                     suggested_desc = suggested_desc[:160] if len(suggested_desc) > 160 else suggested_desc
