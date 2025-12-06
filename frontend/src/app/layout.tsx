@@ -9,6 +9,11 @@ export const metadata: Metadata = {
   description: 'AI-powered SEO monitoring with supernatural twist - Banish your SEO demons',
   keywords: ['SEO', 'AI', 'monitoring', 'exorcist', 'supernatural', 'website analysis'],
   authors: [{ name: 'RankBeacon Team' }],
+  icons: {
+    icon: '/favicon.svg',
+    shortcut: '/favicon.svg',
+    apple: '/favicon.svg',
+  },
   openGraph: {
     title: '👻 RankBeacon SEO Exorcist',
     description: 'Banish your SEO demons with AI-powered supernatural monitoring',
